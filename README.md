@@ -11,9 +11,8 @@
 
 ## 测试示例
 - 展示了如何使用HTML5 Canvas实现动态天气效果
+![天气示例](./example/weather/record.gif)
 - 其他示例
-
-
 
 ## 贡献指南
 
