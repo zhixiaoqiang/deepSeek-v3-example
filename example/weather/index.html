@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>动态天气应用</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Arial', sans-serif;
+        }
+        
+        body {
+            background-color: #f0f2f5;
+            padding: 20px;
+            color: #333;
+        }
+        
+        .app-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #2c3e50;
+        }
+        
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+        
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            background-color: #3498db;
+            color: white;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+        
+        button:hover {
+            background-color: #2980b9;
+        }
+        
+        .weather-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+        }
+        
+        .weather-card {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            transition: transform 0.3s;
+        }
+        
+        .weather-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .card-header {
+            padding: 15px;
+            text-align: center;
+            background-color: #2c3e50;
+            color: white;
+        }
+        
+        .card-content {
+            padding: 15px;
+        }
+        
+        .weather-info {
+            margin-bottom: 15px;
+        }
+        
+        .temperature {
+            font-size: 36px;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        
+        .description {
+            font-size: 18px;
+            margin-bottom: 15px;
+        }
+        
+        .details {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+        
+        .detail-item {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .detail-label {
+            font-size: 12px;
+            color: #7f8c8d;
+        }
+        
+        .detail-value {
+            font-size: 16px;
+            font-weight: bold;
+        }
+        
+        .canvas-container {
+            width: 100%;
+            height: 150px;
+            position: relative;
+            background-color: #ecf0f1;
+        }
+        
+        canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <h1>动态天气应用</h1>
+        
+        <div class="controls">
+            <button id="start-all">开始所有动画</button>
+            <button id="stop-all">停止所有动画</button>
+            <button id="randomize">随机化动画效果</button>
+        </div>
+        
+        <div class="weather-cards">
+            <div class="weather-card" data-weather="storm">
+                <div class="card-header">
+                    <h2>风暴天气</h2>
+                </div>
+                <div class="card-content">
+                    <div class="weather-info">
+                        <div class="temperature">12°C</div>
+                        <div class="description">强风暴雨</div>
+                        <div class="details">
+                            <div class="detail-item">
+                                <span class="detail-label">风速</span>
+                                <span class="detail-value">28 km/h</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">湿度</span>
+                                <span class="detail-value">85%</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">气压</span>
+                                <span class="detail-value">1012 hPa</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">能见度</span>
+                                <span class="detail-value">3 km</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="canvas-container">
+                        <canvas id="storm-canvas"></canvas>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="weather-card" data-weather="rain">
+                <div class="card-header">
+                    <h2>大雨天气</h2>
+                </div>
+                <div class="card-content">
+                    <div class="weather-info">
+                        <div class="temperature">15°C</div>
+                        <div class="description">持续大雨</div>
+                        <div class="details">
+                            <div class="detail-item">
+                                <span class="detail-label">风速</span>
+                                <span class="detail-value">15 km/h</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">湿度</span>
+                                <span class="detail-value">92%</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">气压</span>
+                                <span class="detail-value">1008 hPa</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">降水量</span>
+                                <span class="detail-value">25 mm</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="canvas-container">
+                        <canvas id="rain-canvas"></canvas>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="weather-card" data-weather="sunny">
+                <div class="card-header">
+                    <h2>晴天</h2>
+                </div>
+                <div class="card-content">
+                    <div class="weather-info">
+                        <div class="temperature">28°C</div>
+                        <div class="description">晴朗无云</div>
+                        <div class="details">
+                            <div class="detail-item">
+                                <span class="detail-label">风速</span>
+                                <span class="detail-value">5 km/h</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">湿度</span>
+                                <span class="detail-value">45%</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">气压</span>
+                                <span class="detail-value">1018 hPa</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">紫外线</span>
+                                <span class="detail-value">强</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="canvas-container">
+                        <canvas id="sunny-canvas"></canvas>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="weather-card" data-weather="snow">
+                <div class="card-header">
+                    <h2>雪暴天气</h2>
+                </div>
+                <div class="card-content">
+                    <div class="weather-info">
+                        <div class="temperature">-5°C</div>
+                        <div class="description">大雪纷飞</div>
+                        <div class="details">
+                            <div class="detail-item">
+                                <span class="detail-label">风速</span>
+                                <span class="detail-value">20 km/h</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">湿度</span>
+                                <span class="detail-value">78%</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">气压</span>
+                                <span class="detail-value">1020 hPa</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">积雪</span>
+                                <span class="detail-value">15 cm</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="canvas-container">
+                        <canvas id="snow-canvas"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 获取所有Canvas元素
+            const stormCanvas = document.getElementById('storm-canvas');
+            const rainCanvas = document.getElementById('rain-canvas');
+            const sunnyCanvas = document.getElementById('sunny-canvas');
+            const snowCanvas = document.getElementById('snow-canvas');
+            
+            // 设置Canvas尺寸
+            function resizeCanvases() {
+                const containers = document.querySelectorAll('.canvas-container');
+                containers.forEach(container => {
+                    const canvas = container.querySelector('canvas');
+                    canvas.width = container.clientWidth;
+                    canvas.height = container.clientHeight;
+                });
+            }
+            
+            // 初始调整尺寸
+            resizeCanvases();
+            window.addEventListener('resize', resizeCanvases);
+            
+            // 动画状态
+            let animationsRunning = false;
+            let animationIds = {
+                storm: null,
+                rain: null,
+                sunny: null,
+                snow: null
+            };
+            
+            // 风暴动画 - 横向移动的风线
+            function initStormAnimation() {
+                const ctx = stormCanvas.getContext('2d');
+                const width = stormCanvas.width;
+                const height = stormCanvas.height;
+                
+                // 风线数组
+                const windLines = [];
+                const lineCount = 20;
+                
+                // 初始化风线
+                for (let i = 0; i < lineCount; i++) {
+                    windLines.push({
+                        x: Math.random() * width,
+                        y: Math.random() * height,
+                        length: 20 + Math.random() * 30,
+                        speed: 2 + Math.random() * 5,
+                        opacity: 0.2 + Math.random() * 0.5
+                    });
+                }
+                
+                function animate() {
+                    animationsRunning = true
+                    cancelAnimationFrame(animationIds.storm);
+                    ctx.clearRect(0, 0, width, height);
+                    ctx.strokeStyle = '#34495e';
+                    
+                    windLines.forEach(line => {
+                        ctx.beginPath();
+                        ctx.moveTo(line.x, line.y);
+                        ctx.lineTo(line.x + line.length, line.y);
+                        ctx.lineWidth = 1;
+                        ctx.globalAlpha = line.opacity;
+                        ctx.stroke();
+                        
+                        // 更新位置
+                        line.x += line.speed;
+                        if (line.x > width) {
+                            line.x = -line.length;
+                            line.y = Math.random() * height;
+                        }
+                    });
+                    
+                    ctx.globalAlpha = 1;
+                    animationIds.storm = requestAnimationFrame(animate);
+                }
+                
+                return animate;
+            }
+            
+            // 大雨动画 - 垂直下落的雨滴
+            function initRainAnimation() {
+                const ctx = rainCanvas.getContext('2d');
+                const width = rainCanvas.width;
+                const height = rainCanvas.height;
+                
+                // 雨滴数组
+                const raindrops = [];
+                const dropCount = 100;
+                
+                // 初始化雨滴
+                for (let i = 0; i < dropCount; i++) {
+                    raindrops.push({
+                        x: Math.random() * width,
+                        y: Math.random() * height,
+                        length: 10 + Math.random() * 15,
+                        speed: 5 + Math.random() * 10,
+                        opacity: 0.3 + Math.random() * 0.7
+                    });
+                }
+                
+                function animate() {
+                    animationsRunning = true
+                    cancelAnimationFrame(animationIds.rain);
+                    ctx.clearRect(0, 0, width, height);
+                    ctx.strokeStyle = '#3498db';
+                    
+                    raindrops.forEach(drop => {
+                        ctx.beginPath();
+                        ctx.moveTo(drop.x, drop.y);
+                        ctx.lineTo(drop.x, drop.y + drop.length);
+                        ctx.lineWidth = 1;
+                        ctx.globalAlpha = drop.opacity;
+                        ctx.stroke();
+                        
+                        // 更新位置
+                        drop.y += drop.speed;
+                        if (drop.y > height) {
+                            drop.y = -drop.length;
+                            drop.x = Math.random() * width;
+                        }
+                    });
+                    
+                    ctx.globalAlpha = 1;
+                    
+                    // 添加雨滴溅起效果
+                    for (let i = 0; i < 5; i++) {
+                        const x = Math.random() * width;
+                        ctx.beginPath();
+                        ctx.arc(x, height, 1 + Math.random() * 2, 0, Math.PI * 2);
+                        ctx.fillStyle = 'rgba(52, 152, 219, 0.7)';
+                        ctx.fill();
+                    }
+                    
+                    animationIds.rain = requestAnimationFrame(animate);
+                }
+                
+                return animate;
+            }
+            
+            // 晴天动画 - 从中心发散的阳光射线
+            function initSunnyAnimation() {
+                const ctx = sunnyCanvas.getContext('2d');
+                const width = sunnyCanvas.width;
+                const height = sunnyCanvas.height;
+                
+                // 太阳位置
+                const centerX = width / 2;
+                const centerY = height / 2;
+                const sunRadius = Math.min(width, height) * 0.15;
+                
+                // 光线数组
+                const rays = [];
+                const rayCount = 12;
+                
+                // 初始化光线
+                for (let i = 0; i < rayCount; i++) {
+                    rays.push({
+                        angle: (i / rayCount) * Math.PI * 2,
+                        length: sunRadius * 0.8,
+                        targetLength: sunRadius * (1.2 + Math.random() * 0.5),
+                        speed: 0.02 + Math.random() * 0.03,
+                        growing: Math.random() > 0.5
+                    });
+                }
+                
+                function animate() {
+                    animationsRunning = true
+                    cancelAnimationFrame(animationIds.sunny);
+                    ctx.clearRect(0, 0, width, height);
+                    
+                    // 绘制太阳
+                    const gradient = ctx.createRadialGradient(
+                        centerX, centerY, 0,
+                        centerX, centerY, sunRadius
+                    );
+                    gradient.addColorStop(0, 'rgba(255, 204, 0, 1)');
+                    gradient.addColorStop(1, 'rgba(255, 204, 0, 0)');
+                    
+                    ctx.beginPath();
+                    ctx.arc(centerX, centerY, sunRadius, 0, Math.PI * 2);
+                    ctx.fillStyle = gradient;
+                    ctx.fill();
+                    
+                    // 绘制光线
+                    ctx.strokeStyle = 'rgba(255, 204, 0, 0.7)';
+                    ctx.lineWidth = 2;
+                    
+                    rays.forEach(ray => {
+                        // 更新光线长度
+                        if (ray.growing) {
+                            ray.length += ray.speed;
+                            if (ray.length >= ray.targetLength) {
+                                ray.growing = false;
+                                ray.targetLength = sunRadius * (0.8 + Math.random() * 0.4);
+                            }
+                        } else {
+                            ray.length -= ray.speed;
+                            if (ray.length <= sunRadius * 0.8) {
+                                ray.growing = true;
+                                ray.targetLength = sunRadius * (1.2 + Math.random() * 0.5);
+                            }
+                        }
+                        
+                        // 绘制光线
+                        const endX = centerX + Math.cos(ray.angle) * ray.length;
+                        const endY = centerY + Math.sin(ray.angle) * ray.length;
+                        
+                        ctx.beginPath();
+                        ctx.moveTo(centerX, centerY);
+                        ctx.lineTo(endX, endY);
+                        ctx.stroke();
+                    });
+                    
+                    animationIds.sunny = requestAnimationFrame(animate);
+                }
+                
+                return animate;
+            }
+            
+            // 雪暴动画 - 飘落的雪花
+            function initSnowAnimation() {
+                const ctx = snowCanvas.getContext('2d');
+                const width = snowCanvas.width;
+                const height = snowCanvas.height;
+                
+                // 雪花数组
+                const snowflakes = [];
+                const flakeCount = 80;
+                
+                // 初始化雪花
+                for (let i = 0; i < flakeCount; i++) {
+                    snowflakes.push({
+                        x: Math.random() * width,
+                        y: Math.random() * height,
+                        radius: 1 + Math.random() * 3,
+                        speed: 1 + Math.random() * 3,
+                        wind: -1 + Math.random() * 2,
+                        opacity: 0.5 + Math.random() * 0.5
+                    });
+                }
+                
+                function animate() {
+                    animationsRunning = true
+                    cancelAnimationFrame(animationIds.snow);
+                    ctx.clearRect(0, 0, width, height);
+                    ctx.fillStyle = 'white';
+                    
+                    snowflakes.forEach(flake => {
+                        ctx.beginPath();
+                        ctx.arc(flake.x, flake.y, flake.radius, 0, Math.PI * 2);
+                        ctx.globalAlpha = flake.opacity;
+                        ctx.fill();
+                        
+                        // 更新位置
+                        flake.y += flake.speed;
+                        flake.x += flake.wind * 0.5;
+                        
+                        // 边界检查
+                        if (flake.y > height) {
+                            flake.y = -flake.radius;
+                            flake.x = Math.random() * width;
+                        }
+                        
+                        if (flake.x > width + flake.radius) {
+                            flake.x = -flake.radius;
+                        } else if (flake.x < -flake.radius) {
+                            flake.x = width + flake.radius;
+                        }
+                    });
+                    
+                    ctx.globalAlpha = 1;
+                    animationIds.snow = requestAnimationFrame(animate);
+                }
+                
+                return animate;
+            }
+            
+            // 初始化动画函数
+            const animateStorm = initStormAnimation();
+            const animateRain = initRainAnimation();
+            const animateSunny = initSunnyAnimation();
+            const animateSnow = initSnowAnimation();
+            
+            // 控制按钮功能
+            document.getElementById('start-all').addEventListener('click', function() {
+              console.log('start animationsRunning', animationsRunning)
+                // if (!animationsRunning) {
+                    animateStorm();
+                    animateRain();
+                    animateSunny();
+                    animateSnow();
+                    // animationsRunning = true;
+                // }
+            });
+            
+            document.getElementById('stop-all').addEventListener('click', function() {
+                // if (animationsRunning) {
+                    cancelAnimationFrame(animationIds.storm);
+                    cancelAnimationFrame(animationIds.rain);
+                    cancelAnimationFrame(animationIds.sunny);
+                    cancelAnimationFrame(animationIds.snow);
+                    // animationsRunning = false;
+                    
+                    // 清除画布
+                    const canvases = [stormCanvas, rainCanvas, sunnyCanvas, snowCanvas];
+                    canvases.forEach(canvas => {
+                        const ctx = canvas.getContext('2d');
+                        ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    });
+                // }
+            });
+            let preRandomWeather = null
+            document.getElementById('randomize').addEventListener('click', function() {
+                // 停止所有动画
+                document.getElementById('stop-all').click();
+                
+                // 随机选择一个天气卡片
+                const weatherTypes = ['storm', 'rain', 'sunny', 'snow'];
+                let randomWeather = weatherTypes[Math.floor(Math.random() * weatherTypes.length)];
+                while (randomWeather === preRandomWeather) {
+                    randomWeather = weatherTypes[Math.floor(Math.random() * weatherTypes.length)];
+                }
+                preRandomWeather = randomWeather
+
+                const card = document.querySelector(`.weather-card[data-weather="${randomWeather}"]`);
+                switch (randomWeather) {
+                    case 'storm':
+                        initStormAnimation()();
+                        break;
+                    case 'rain':
+                        initRainAnimation()();
+                        break;
+                    case 'sunny':
+                        initSunnyAnimation()();
+                        break;
+                    case 'snow':
+                        initSnowAnimation()();
+                        break;
+                }
+            });
+            
+            // 初始启动所有动画
+            document.getElementById('start-all').click();
+        });
+    </script>
+</body>
+</html>
