@@ -14,6 +14,14 @@
 ![天气示例](./example/weather/record.gif)
 - 其他示例
 
+## 示例规则
+
+someExample
+  ├── index.html        # 主页面文件
+  ├── README.md         # 项目说明文件
+  ├── prompt.md         # 提示词
+  ├── record.gif        # 录屏动画
+
 ## 贡献指南
 
 欢迎提交 issue 或 pull request 来改进本项目。

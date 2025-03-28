@@ -24,13 +24,15 @@
 ## 项目结构
 
 /deepSeek-v3-example
-  ├── weather.html        # 主页面文件
+  ├── index.html        # 主页面文件
   ├── README.md           # 项目说明文件
+  ├── prompt.md           # 提示词
+  ├── record.gif          # 录屏动画
 
 
 ## 使用说明
 
-1. 打开 `weather.html` 文件
+1. 打开 `index.html` 文件
 2. 点击控制按钮：
    - "开始所有动画"：启动所有天气效果
    - "停止所有动画"：停止所有动画
